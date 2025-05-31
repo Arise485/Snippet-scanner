@@ -221,6 +221,84 @@
             color: #c4b5fd; /* Lighter text for description */
         }
 
+        /* Meet the Developers Section */
+        .developers-section {
+            background-color: #F8F4FD; /* Very light purple/cream background */
+            color: #3b0764; /* Dark purple text for contrast */
+            padding: 4rem 1.5rem;
+            width: 100%;
+            text-align: center;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Shadow to separate from above */
+            margin-top: 3rem; /* Space from why-choose section */
+        }
+        .developers-section h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 3.5rem; /* Big font size for main heading */
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            color: #4a007c; /* Darker purple for heading */
+        }
+        .developers-section h3 {
+            font-weight: 700;
+            font-size: 2rem; /* Larger font for subheadings */
+            margin-bottom: 1.5rem;
+            color: #6a1a9e; /* Purple for subheadings */
+        }
+        .developer-info {
+            background-color: #EDE7F6; /* Slightly darker light background for cards */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #3b0764;
+        }
+        .developer-info p {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .developer-info a {
+            color: #6366f1; /* Indigo link color */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .developer-info a:hover {
+            color: #4338ca; /* Darker indigo on hover */
+            text-decoration: underline;
+        }
+        .team-members-horizontal {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            justify-content: center; /* Center horizontally */
+            gap: 1.5rem; /* Space between cards */
+        }
+        .team-member-card {
+            background-color: #EDE7F6;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem; /* Slightly less padding than lead */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #3b0764;
+            flex: 1 1 calc(33% - 1.5rem); /* Roughly 3 per row, responsive */
+            max-width: 280px; /* Max width for individual cards */
+        }
+        .team-member-card p {
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+        .project-description-note {
+            background-color: #E0E7FF; /* A very light blue-purple */
+            color: #4a007c;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
     </style>
 </head>
 <body>
@@ -362,7 +440,7 @@
             </div>
             <div class="why-choose-card">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101m-4.242 0a4 4 0 000 5.656l4 4a4 4 0 005.656-5.656l-1.102-1.101" />
                 </svg>
                 <h3>URL Scanning</h3>
                 <p>Scan live websites and web applications for vulnerabilities and security issues.</p>
@@ -374,6 +452,42 @@
                 <h3>Developer Friendly</h3>
                 <p>Detailed recommendations and fix suggestions to help developers secure their code.</p>
             </div>
+        </div>
+    </div>
+
+    <div class="developers-section">
+        <h2 class="Impact">MEET THE DEVELOPERS</h2>
+        <div class="max-w-4xl mx-auto mt-10">
+            <h3 class="text-center mb-6">Project Lead</h3>
+            <div class="developer-info">
+                <p class="font-bold text-2xl">Pitta Shankumar</p>
+                <p>Email id: <a href="mailto:shankumarpitta714@gmail.com">shankumarpitta714@gmail.com</a></p>
+                <p>Instagram: <a href="https://www.instagram.com/shankumar_7/" target="_blank" rel="noopener noreferrer">@shankumar_7</a></p>
+            </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto mt-12">
+            <h3 class="text-center mb-6">About the Team</h3>
+            <div class="team-members-horizontal">
+                <div class="team-member-card">
+                    <p class="font-semibold">Jessani Radhika</p>
+                    <p><a href="mailto:jessani.radhika@gmail.com">jessani.radhika@gmail.com</a></p>
+                </div>
+                <div class="team-member-card">
+                    <p class="font-semibold">Rani Vamshika</p>
+                    <p><a href="mailto:ranivamshika15@gmail.com">ranivamshika15@gmail.com</a></p>
+                </div>
+                <div class="team-member-card">
+                    <p class="font-semibold">Kurva Aishwarya</p>
+                    <p><a href="mailto:kurvaaishwarya790@gmail.com">kurvaaishwarya790@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto mt-12 project-description-note">
+            <p>
+                This project was built as part of **Hack 4 Mini 2.O 2025** Organized By **CMR Technical Campus (CMRCTC), Telangana**, where we collaborated to solve the critical need for an accessible and comprehensive tool to identify common web application vulnerabilities, thereby promoting more secure coding practices and enhancing the overall security posture of applications developed by students and developers.
+            </p>
         </div>
     </div>
 
@@ -466,7 +580,7 @@
 
 
             // Make POST request to Flask backend
-            fetch('http://127.0.0.1:5050/scan', { // <-- CHANGED THIS LINE
+            fetch('http://127.0.0.1:5050/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -487,7 +601,7 @@
                 vulnerabilities.forEach(issue => {
                     if (issue.severity === 'High' || issue.severity === 'Critical') {
                         highCount++;
-                    } else {
+                    } else { // Medium, Low, Info
                         lowMediumCount++;
                     }
                 });
@@ -499,14 +613,14 @@
 
                 if (!vulnerabilities || vulnerabilities.length === 0) {
                     resultsContent.innerHTML = `
-                        <p class="text-green-400 font-semibold mb-2 flex items-center justify-center">
-                            <svg class="h-6 w-6 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <p class="text-green-400 font-bold mb-2 flex items-center justify-center text-2xl">
+                            <svg class="h-8 w-8 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Scan Complete! No common OWASP Top 10 issues detected.
+                            You are good to go!!
                         </p>
-                        <p class="text-purple-300 text-sm italic text-center mt-2">
-                            Remember, this is a simplified scanner and not a substitute for professional security testing.
+                        <p class="text-purple-300 text-base italic text-center mt-2">
+                            No common OWASP Top 10 issues detected by this simplified scanner. <br>Remember, this is not a substitute for professional security testing.
                         </p>
                     `;
                 } else {
