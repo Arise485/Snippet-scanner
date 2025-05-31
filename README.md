@@ -105,3 +105,9 @@ pip install -r requirements.txt
   ```
 
 ---
+
+developed by
+Pitta shankumar
+jessani radhika
+kurva aishwarya
+rani vamshika
