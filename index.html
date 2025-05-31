@@ -580,7 +580,7 @@
 
 
             // Make POST request to Flask backend
-            fetch('http://127.0.0.1:5050/scan', {
+            fetch('https://snippet-scanner.onrender.com/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
