@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snippet Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif; /* Changed font to Times New Roman */
+            background: linear-gradient(to right top, #4a007c, #6a1a9e, #8c3bbd, #ae5eda, #d080f7); /* Dark purple/indigo gradient */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Allow content to stack vertically */
+            align-items: center;
+            justify-content: flex-start; /* Align content to start, allowing scroll */
+            padding: 2rem 1.5rem; /* Increased padding top/bottom */
+            overflow-y: auto; /* Allow scrolling */
+        }
+
+        /* Specific style for the main title to keep Inter font if desired, otherwise remove this block */
+        .scanner-title {
+            font-family: 'Inter', sans-serif; /* Keep Inter for the main title */
+        }
+
+        /* Custom styles for the main scanner container */
+        .scanner-container {
+            background-color: #3b0764; /* Darker purple for the card */
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* Stronger, darker shadow */
+            max-width: 900px; /* Wider container for the scanner */
+            width: 100%;
+            padding: 3rem; /* Increased padding */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+            color: #e0e7ff; /* Light text color for contrast */
+            margin-bottom: 3rem; /* Space before next section */
+        }
+
+        /* Header feature icons */
+        .feature-icon-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #a78bfa; /* Light purple for icons */
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Input type tabs */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            color: #a78bfa; /* Light purple text */
+            background-color: rgba(255, 255, 255, 0.08); /* Subtle background for inactive */
+        }
+
+        .tab-button.active {
+            background-color: #6366f1; /* Tailwind indigo-500 */
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Textarea and input styling */
+        textarea, input[type="text"] {
+            background-color: #2e0553; /* Even darker purple for input fields */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e0e7ff;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        textarea::placeholder, input[type="text"]::placeholder {
+            color: #a78bfa; /* Lighter placeholder text */
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+            background-color: #3b0764; /* Slightly lighter on focus */
+        }
+
+        /* Scan button */
+        #scanButton {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to purple gradient */
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            padding: 0.8rem 2.5rem; /* Adjusted padding */
+            font-size: 1.25rem; /* Larger text */
+            border-radius: 9999px; /* Fully rounded */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #scanButton::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transition: all 0.75s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: -1;
+        }
+
+        #scanButton:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #scanButton:hover {
+            transform: translateY(-4px) scale(1.02); /* More pronounced lift */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Results box */
+        .results-box {
+            background-color: #2e0553; /* Darker background for results */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.2); /* Subtle inner shadow */
+            color: #e0e7ff; /* Light text color */
+        }
+
+        .results-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Summary cards */
+        .summary-card {
+            background-color: #4c1d95; /* Darker purple for summary cards */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            color: #e0e7ff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Detected Vulnerabilities List Item */
+        .vulnerability-item {
+            background-color: #2e0553; /* Dark background for each item */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .vulnerability-item:hover {
+            transform: translateX(5px);
+        }
+
+        /* Severity badges */
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* Full pill shape */
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+        }
+        .severity-high-badge { background-color: #dc2626; } /* Red */
+        .severity-medium-badge { background-color: #f59e0b; } /* Orange */
+        .severity-low-badge { background-color: #2563eb; } /* Blue */
+        .severity-info-badge { background-color: #8b5cf6; } /* Purple */
+
+        /* Why Choose Section */
+        .why-choose-section {
+            background: linear-gradient(to right top, #4a007c, #6a1a9e); /* Darker gradient for this section */
+            color: #e0e7ff;
+            padding: 4rem 1.5rem;
+            width: 100%;
+            text-align: center;
+            border-radius: 1.5rem;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3); /* Shadow to separate from above */
+            margin-top: 3rem; /* Space from scanner */
+        }
+
+        .why-choose-card {
+            background-color: #3b0764; /* Darker purple for feature cards */
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: left;
+        }
+        .why-choose-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+        .why-choose-card svg {
+            color: #a78bfa; /* Icon color */
+            margin-bottom: 1rem;
+        }
+        .why-choose-card h3 {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+        .why-choose-card p {
+            font-size: 0.95rem;
+            color: #c4b5fd; /* Lighter text for description */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="scanner-container">
+        <h1 class="text-6xl font-extrabold mb-4 text-center tracking-tight leading-tight text-white scanner-title">
+            <span class="text-purple-400">Snippet</span> Scanner
+        </h1>
+        <p class="text-purple-200 mb-8 text-center text-xl leading-relaxed max-w-2xl mx-auto">
+            Advanced OWASP Top 10 vulnerability detection for your code snippets and web applications. Secure your code with enterprise-grade security scanning.
+        </p>
+
+        <div class="flex justify-center items-center space-x-6 mb-12 flex-wrap gap-y-4">
+            <div class="feature-icon-group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Real-time scanning</span>
+            </div>
+            <div class="feature-icon-group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.944 12c0 2.894 1.144 5.518 3.04 7.418m-3.04-7.418A12.001 12.001 0 0112 21.056c2.894 0 5.518-1.144 7.418-3.04m-3.04 3.04A12.001 12.001 0 0021.056 12c0-2.894-1.144-5.518-3.04-7.418" />
+                </svg>
+                <span>OWASP Top 10 coverage</span>
+            </div>
+            <div class="feature-icon-group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3H9a3 3 0 00-3 3v5m6 0h.01M12 12h4.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.707-.707l4.586-4.586z" />
+                </svg>
+                <span>AI-powered analysis</span>
+            </div>
+        </div>
+
+        <div class="mb-10 flex justify-center space-x-4">
+            <button id="codeTab" class="tab-button active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                Code Snippet
+            </button>
+            <button id="urlTab" class="tab-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101m-4.242 0a4 4 0 000 5.656l4 4a4 4 0 005.656-5.656l-1.102-1.101" />
+                </svg>
+                URL
+            </button>
+        </div>
+
+        <div id="codeInputGroup" class="mb-8">
+            <label for="codeSnippet" class="block text-purple-200 text-lg font-medium mb-3">
+                Enter your code snippet:
+            </label>
+            <textarea
+                id="codeSnippet"
+                class="w-full p-4 border rounded-lg focus:outline-none focus:ring-4 text-base resize-y min-h-[280px] shadow-inner transition duration-200"
+                placeholder="Paste your code snippet here..."
+            ></textarea>
+        </div>
+
+        <div id="urlInputGroup" class="mb-8 hidden">
+            <label for="urlLink" class="block text-purple-200 text-lg font-medium mb-3">
+                Enter URL to Scan:
+            </label>
+            <input
+                type="text"
+                id="urlLink"
+                class="w-full p-4 border rounded-lg focus:outline-none focus:ring-4 text-base shadow-inner transition duration-200"
+                placeholder="e.g., https://example.com"
+            />
+        </div>
+
+        <div class="mb-10 text-center">
+            <button
+                id="scanButton"
+                class="text-white font-bold py-3 px-12 focus:outline-none focus:ring-4 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-purple-900 flex items-center justify-center mx-auto"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Scan for Vulnerabilities
+            </button>
+        </div>
+
+        <div id="resultsBox" class="results-box min-h-[180px] overflow-auto">
+            <h2 class="text-2xl font-bold mb-4 border-b pb-2 border-purple-700 text-white">Scan Results:</h2>
+            <div id="resultsSummary" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="summary-card">
+                    <div class="text-3xl font-bold text-white" id="totalIssues">0</div>
+                    <div class="text-sm text-purple-200">Total Issues</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-3xl font-bold text-red-400" id="highCritical">0</div>
+                    <div class="text-sm text-purple-200">High/Critical</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-3xl font-bold text-yellow-400" id="lowMedium">0</div>
+                    <div class="text-sm text-purple-200">Low/Medium</div>
+                </div>
+            </div>
+            <div id="resultsContent" class="text-base">
+                <p class="text-purple-300 italic text-center">Select an input type and click "Scan Now" to see the results here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="why-choose-section">
+        <h2 class="text-4xl font-extrabold text-white mb-6">Why Choose Snippet Scanner?</h2>
+        <p class="text-purple-200 text-lg mb-12 max-w-2xl mx-auto">
+            Advanced security scanning with enterprise-grade features designed for modern development workflows.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.944 12c0 2.894 1.144 5.518 3.04 7.418m-3.04-7.418A12.001 12.001 0 0112 21.056c2.894 0 5.518-1.144 7.418-3.04m-3.04 3.04A12.001 12.001 0 0021.056 12c0-2.894-1.144-5.518-3.04-7.418" />
+                </svg>
+                <h3>OWASP Top 10 Coverage</h3>
+                <p>Comprehensive scanning for all OWASP Top 10 vulnerabilities including injection, XSS, and more.</p>
+            </div>
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h3>Lightning Fast</h3>
+                <p>Get results in seconds with our optimized scanning engine and parallel processing.</p>
+            </div>
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3H9a3 3 0 00-3 3v5m6 0h.01M12 12h4.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.707-.707l4.586-4.586z" />
+                </svg>
+                <h3>Precise Detection</h3>
+                <p>AI-powered analysis reduces false positives and provides accurate vulnerability detection.</p>
+            </div>
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <h3>Multi-Language Support</h3>
+                <p>Supports PHP, JavaScript, Python, Java, C#, and many other programming languages.</p>
+            </div>
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
+                </svg>
+                <h3>URL Scanning</h3>
+                <p>Scan live websites and web applications for vulnerabilities and security issues.</p>
+            </div>
+            <div class="why-choose-card">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3>Developer Friendly</h3>
+                <p>Detailed recommendations and fix suggestions to help developers secure their code.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const codeTab = document.getElementById('codeTab');
+        const urlTab = document.getElementById('urlTab');
+        const codeInputGroup = document.getElementById('codeInputGroup');
+        const urlInputGroup = document.getElementById('urlInputGroup');
+        const codeSnippetTextarea = document.getElementById('codeSnippet');
+        const urlLinkInput = document.getElementById('urlLink');
+        const scanButton = document.getElementById('scanButton');
+        const resultsContent = document.getElementById('resultsContent');
+        const resultsBox = document.getElementById('resultsBox');
+        const totalIssuesSpan = document.getElementById('totalIssues');
+        const highCriticalSpan = document.getElementById('highCritical');
+        const lowMediumSpan = document.getElementById('lowMedium');
+
+        // Function to update active tab style
+        function setActiveTab(activeTabId) {
+            codeTab.classList.remove('active');
+            urlTab.classList.remove('active');
+            if (activeTabId === 'codeTab') {
+                codeTab.classList.add('active');
+                codeInputGroup.classList.remove('hidden');
+                urlInputGroup.classList.add('hidden');
+                urlLinkInput.value = ''; // Clear URL input when switching
+            } else {
+                urlTab.classList.add('active');
+                codeInputGroup.classList.add('hidden');
+                urlInputGroup.classList.remove('hidden');
+                codeSnippetTextarea.value = ''; // Clear code input when switching
+            }
+            // Reset results display
+            resultsContent.innerHTML = '<p class="text-purple-300 italic text-center">Select an input type and click "Scan Now" to see the results here.</p>';
+            totalIssuesSpan.textContent = '0';
+            highCriticalSpan.textContent = '0';
+            lowMediumSpan.textContent = '0';
+        }
+
+        // Event listeners for tab selection
+        codeTab.addEventListener('click', () => setActiveTab('codeTab'));
+        urlTab.addEventListener('click', () => setActiveTab('urlTab'));
+
+        // Set initial active tab
+        setActiveTab('codeTab');
+
+        // Event listener for Scan Button
+        scanButton.addEventListener('click', function() {
+            resultsBox.classList.remove('results-fade-in'); // Clear previous animation
+
+            let payload = {};
+            let currentInputType = codeTab.classList.contains('active') ? 'code' : 'url';
+
+            if (currentInputType === 'code') {
+                const codeSnippet = codeSnippetTextarea.value.trim();
+                if (codeSnippet === '') {
+                    resultsContent.innerHTML = '<p class="text-red-400 font-semibold text-center">Please paste some code to scan.</p>';
+                    return;
+                }
+                payload = { code_snippet: codeSnippet };
+            } else { // currentInputType === 'url'
+                const urlLink = urlLinkInput.value.trim();
+                if (urlLink === '') {
+                    resultsContent.innerHTML = '<p class="text-red-400 font-semibold text-center">Please enter a URL to scan.</p>';
+                    return;
+                }
+                // Basic URL validation (more robust validation should be backend)
+                if (!urlLink.startsWith('http://') && !urlLink.startsWith('https://')) {
+                    resultsContent.innerHTML = '<p class="text-red-400 font-semibold text-center">Please enter a valid URL starting with http:// or https://</p>';
+                    return;
+                }
+                payload = { url: urlLink };
+            }
+
+            // Show loading spinner
+            resultsContent.innerHTML = `
+                <p class="text-purple-300 font-semibold mb-2 flex items-center justify-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Scanning in progress...
+                </p>
+                <p class="text-purple-400 text-center text-sm">Analyzing your ${currentInputType === 'code' ? 'code snippet' : 'URL'} for common OWASP Top 10 vulnerabilities...</p>
+            `;
+            totalIssuesSpan.textContent = '...';
+            highCriticalSpan.textContent = '...';
+            lowMediumSpan.textContent = '...';
+
+
+            // Make POST request to Flask backend
+            fetch('http://127.0.0.1:5050/scan', { // <-- CHANGED THIS LINE
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // It's good practice to log the full response for debugging HTTP errors
+                    return response.text().then(text => { throw new Error(`HTTP error! Status: ${response.status}, Response: ${text}`); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                const vulnerabilities = data.vulnerabilities;
+
+                let highCount = 0;
+                let lowMediumCount = 0;
+
+                vulnerabilities.forEach(issue => {
+                    if (issue.severity === 'High' || issue.severity === 'Critical') {
+                        highCount++;
+                    } else {
+                        lowMediumCount++;
+                    }
+                });
+
+                totalIssuesSpan.textContent = vulnerabilities.length;
+                highCriticalSpan.textContent = highCount;
+                lowMediumSpan.textContent = lowMediumCount;
+
+
+                if (!vulnerabilities || vulnerabilities.length === 0) {
+                    resultsContent.innerHTML = `
+                        <p class="text-green-400 font-semibold mb-2 flex items-center justify-center">
+                            <svg class="h-6 w-6 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Scan Complete! No common OWASP Top 10 issues detected.
+                        </p>
+                        <p class="text-purple-300 text-sm italic text-center mt-2">
+                            Remember, this is a simplified scanner and not a substitute for professional security testing.
+                        </p>
+                    `;
+                } else {
+                    let html = `<div class="space-y-6">`; // Increased space between vulnerability cards
+
+                    vulnerabilities.forEach(issue => {
+                        let severityBadgeClass = '';
+                        let issueIcon = '';
+                        if (issue.severity === 'High' || issue.severity === 'Critical') {
+                            severityBadgeClass = 'severity-high-badge';
+                            issueIcon = `<svg class="h-7 w-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`; // Exclamation circle
+                        } else if (issue.severity === 'Medium') {
+                            severityBadgeClass = 'severity-medium-badge';
+                            issueIcon = `<svg class="h-7 w-7 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`; // Triangle warning
+                        } else { // Low or Info
+                            severityBadgeClass = 'severity-low-badge';
+                            issueIcon = `<svg class="h-7 w-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`; // Info circle
+                        }
+
+
+                        html += `
+                            <div class="vulnerability-item">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center">
+                                        ${issueIcon}
+                                        <h3 class="text-xl font-semibold ml-3 text-white">${issue.issue || issue.name}</h3>
+                                    </div>
+                                    <span class="severity-badge ${severityBadgeClass}">${issue.severity}</span>
+                                </div>
+                                <p class="text-purple-300 text-sm mb-2">${issue.description}</p>
+                                <div class="text-purple-400 text-xs italic mb-2">
+                                    <span class="font-semibold">OWASP Category:</span> ${issue.owasp_category || 'N/A'}
+                                </div>
+                                ${issue.line_number ? `<div class="text-purple-400 text-xs italic mb-2">Line: ${issue.line_number}</div>` : ''}
+                                <div class="mt-3 pt-3 border-t border-purple-700">
+                                    <h4 class="font-semibold text-purple-200 text-sm mb-1">Recommendation:</h4>
+                                    <p class="text-purple-300 text-sm">${issue.suggestion || 'No specific suggestion provided.'}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    resultsContent.innerHTML = html;
+                }
+
+                resultsBox.classList.add('results-fade-in');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                totalIssuesSpan.textContent = '0';
+                highCriticalSpan.textContent = '0';
+                lowMediumSpan.textContent = '0';
+                resultsContent.innerHTML = `
+                    <p class="text-red-400 font-semibold mb-2 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Error scanning code.
+                    </p>
+                    <p class="text-purple-300 text-sm text-center">
+                        Please ensure the backend API is running at <code class="bg-purple-800 px-1 py-0.5 rounded text-xs">http://127.0.0.1:5050</code>. <br>Details: ${error.message}
+                    </p>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
